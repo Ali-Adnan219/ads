@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري تجهيز التحميل</title>
+    <style>
+        /* ==========================================================================
+           1. المتغيرات والألوان (تصميم فخم داكن)
+           ========================================================================== */
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-glow: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --error-color: #ef4444;
+            --success-color: #10b981;
+            --font-stack: "Tajawal", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ==========================================================================
+           2. إعادة ضبط العناصر الأساسية
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-stack);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* تأثيرات الخلفية الضبابية */
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            background: var(--accent-gradient);
+            filter: blur(120px);
+            opacity: 0.12;
+            border-radius: 50%;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 45vw;
+            height: 45vw;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+        }
+
+        /* ==========================================================================
+           3. حاوية البطاقة الزجاجية (Glassmorphism)
+           ========================================================================== */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 30px 60px -10px rgba(59, 130, 246, 0.15);
+        }
+
+        /* ==========================================================================
+           4. الشعار والنصوص
+           ========================================================================== */
+        .logo-container {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px auto;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.05);
+        }
+
+        .logo-container::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(4px);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            fill: none;
+            stroke: #f3f4f6;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        /* شريط التقدم والعداد */
+        .counter-section {
+            margin-bottom: 36px;
+        }
+
+        .counter-number {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, #ffffff 0%, #9ca3af 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: pulse 1s infinite alternate cubic-bezier(0.455, 0.03, 0.515, 0.955);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 100px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 100px;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        /* ==========================================================================
+           5. مساحة الإعلان
+           ========================================================================== */
+        .ad-wrapper {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 32px;
+            text-align: right;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .ad-wrapper:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .ad-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .ad-body {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .ad-image-placeholder {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-image-placeholder svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--text-muted);
+        }
+
+        .ad-content {
+            flex-grow: 1;
+            padding-left: 40px;
+        }
+
+        .ad-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .ad-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        /* الأزرار */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-stack);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-ad-cta {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+
+        .btn-ad-cta:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--border-hover);
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-main:hover:not(:disabled) {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-main:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ==========================================================================
+           6. صفحة الخطأ
+           ========================================================================== */
+        .error-state {
+            display: none;
+        }
+
+        .error-icon-box {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-icon-box svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--error-color);
+            stroke-width: 2;
+        }
+
+        .btn-error {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            padding: 14px;
+        }
+
+        .btn-error:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-hover);
+        }
+
+        /* ==========================================================================
+           7. المؤثرات الحركية والتوافق مع أحجام الشاشات
+           ========================================================================== */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            from { transform: scale(0.98); opacity: 0.95; }
+            to { transform: scale(1.02); opacity: 1; }
+        }
+
+        /* دعم الهواتف المحمولة */
+        @media (max-width: 480px) {
+            .card {
+                padding: 32px 20px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .ad-body {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .ad-image-placeholder {
+                width: 48px;
+                height: 48px;
+            }
+            .ad-content {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                margin-top: 8px;
+            }
+            .ad-tag {
+                top: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="wrapper">
+        <div class="card">
+            
+            <div id="redirect-view">
+                <div class="logo-container">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </div>
+
+                <h1>جاري تجهيز التحميل...</h1>
+                <p class="subtitle">يرجى الانتظار بينما نقوم بتجهيز رابط التحميل الخاص بك.</p>
+
+                <div class="counter-section">
+                    <div class="counter-number" id="countdown-display">5</div>
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progress-indicator"></div>
+                    </div>
+                </div>
+
+                <div class="ad-wrapper">
+                    <span class="ad-tag">إعلان</span>
+                    <div class="ad-body">
+                        
+                        <a href="https://mogahad.com/" target="_blank" class="ad-image-placeholder" style="overflow: hidden; text-decoration: none;">
+                            <img src="https://fastupload.live/do.php?img=11320" alt="لوغو الإعلان" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </a>
+                        
+                        <div class="ad-content">
+                            <h3 class="ad-title">كل ما تحتاجه
+للهندسة
+في مكان واحد</h3>
+                            <p class="ad-description">بحوث هندسية جاهزة، مشاريع تخرج متكاملة، مستلزمات هندسية، وقطع Arduino — كل شيء بخطوات بسيطة وآمنة.</p>
+                            
+                            <a href="https://mogahad.com/" target="_blank" class="btn btn-ad-cta">اعرف المزيد</a>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-main" id="continue-button" disabled>متابعة</button>
+            </div>
+
+            <div id="error-view" class="error-state">
+                <div class="error-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <h1 style="color: var(--error-color);">رابط غير صالح</h1>
+                <p class="subtitle" id="error-message">رابط التحميل مفقود أو غير صالح. يرجى التحقق من الرابط والمحاولة مرة أخرى.</p>
+                <button class="btn btn-error" onclick="window.history.back();">العودة للخلف</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // إعدادات العداد (5000 ميلي ثانية = 5 ثواني)
+            const TOTAL_DURATION = 5000; 
+            const TICK_INTERVAL = 50;
+            
+            // جلب عناصر الواجهة
+            const redirectView = document.getElementById("redirect-view");
+            const errorView = document.getElementById("error-view");
+            const countdownDisplay = document.getElementById("countdown-display");
+            const progressIndicator = document.getElementById("progress-indicator");
+            const continueButton = document.getElementById("continue-button");
+
+            let targetUrl = "";
+            let timeElapsed = 0;
+            let countdownInterval = null;
+
+            // دالة استخراج الرابط المشفّر وفك تشفيره
+            function processRoutingUrl() {
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const encodedPayload = urlParams.get('url');
+
+                    if (!encodedPayload) {
+                        throw new Error("معلمة الرابط مفقودة.");
+                    }
+
+                    // فك تشفير الرابط باستخدام Base64
+                    const decodedPayload = atob(encodedPayload);
+                    
+                    // التأكد من أن النص الناتج هو رابط حقيقي
+                    new URL(decodedPayload);
+                    targetUrl = decodedPayload;
+                    return true;
+                } catch (error) {
+                    displaySystemError();
+                    return false;
+                }
+            }
+
+            // عرض واجهة الخطأ عند وجود خلل بالرابط
+            function displaySystemError() {
+                redirectView.style.display = "none";
+                errorView.style.display = "block";
+            }
+
+            // دالة التحويل
+            function executeRedirection() {
+                if (targetUrl) {
+                    window.location.href = targetUrl;
+                }
+            }
+
+            // دالة تشغيل العداد وشريط التقدم
+            function startCountdownEngine() {
+                countdownInterval = setInterval(() => {
+                    timeElapsed += TICK_INTERVAL;
+                    
+                    // حساب نسبة شريط التقدم والوقت المتبقي
+                    const completionPercentage = Math.min((timeElapsed / TOTAL_DURATION) * 100, 100);
+                    const remainingSeconds = Math.max(Math.ceil((TOTAL_DURATION - timeElapsed) / 1000), 0);
+
+                    // تحديث الواجهة
+                    countdownDisplay.textContent = remainingSeconds;
+                    progressIndicator.style.width = `${completionPercentage}%`;
+
+                    // عند انتهاء الوقت
+                    if (timeElapsed >= TOTAL_DURATION) {
+                        clearInterval(countdownInterval);
+                        continueButton.removeAttribute("disabled"); // تفعيل الزر اليدوي
+                        executeRedirection(); // تحويل تلقائي
+                    }
+                }, TICK_INTERVAL);
+            }
+
+            // تفعيل التحويل عند الضغط على زر المتابعة
+            continueButton.addEventListener("click", () => {
+                executeRedirection();
+            });
+
+            // بدء العملية فور تحميل الصفحة
+            const isPayloadValid = processRoutingUrl();
+            if (isPayloadValid) {
+                startCountdownEngine();
+            }
+        });
+    </script>
+</body>
+</html>
